@@ -1,0 +1,72 @@
+name: code-check
+
+# CINTENT >> MANUAL_TRIGGER
+# on:
+#   push:
+#     branches:
+#       - "main"
+#   pull_request:
+#     branches:
+#       - "*"
+on: [repository_dispatch, workflow_dispatch]
+
+jobs:
+  python-format-black:
+    name: Python format [black]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      # CINTENT >> INSERT_CINTENT
+      - uses: JavidDitty/setup-cintent@3e5b2faf83a2ad32c22a1cd0f86f5f20ea53a5ab
+
+      - name: Install black
+        run: |
+          pip install black>=24
+
+      - name: Lint
+        run: black --check .
+
+      # CINTENT >> INSERT_CINTENT
+      - name: Upload CIntent Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
+
+  python-lint-ruff:
+    name: Python lint [ruff]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      # CINTENT >> INSERT_CINTENT
+      - uses: JavidDitty/setup-cintent@3e5b2faf83a2ad32c22a1cd0f86f5f20ea53a5ab
+
+      - name: Install ruff
+        run: |
+          pip install ruff
+
+      - name: Lint
+        run: ruff check .
+
+      # CINTENT >> INSERT_CINTENT
+      - name: Upload CIntent Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ env.CINTENT_ARTIFACT_NAME }}
+          path: ${{ env.CINTENT_LOGS }}
